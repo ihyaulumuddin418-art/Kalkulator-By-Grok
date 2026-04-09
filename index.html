@@ -4,105 +4,428 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Raven Kalkulator</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-
-    <div class="app-container">
-        <nav class="sidebar">
-            <div class="brand">
-                <i class="fa-solid fa-gem"></i>
-                <h1>RAVEN</h1>
+<body class="bg-[#F9F9F9] font-sans antialiased">
+    <!-- HEADER -->
+    <header class="bg-[#111111] text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-screen-2xl mx-auto px-6 py-4 flex items-center justify-between">
+            <!-- Logo -->
+            <div class="flex items-center gap-x-3">
+                <div class="w-10 h-10 bg-white rounded-2xl flex items-center justify-center text-[#111111] text-3xl shadow-inner">🪶</div>
+                <h1 class="text-3xl font-semibold tracking-[-1px]" style="font-family: 'Syne', sans-serif;">Raven Kalkulator</h1>
             </div>
-            <ul class="nav-links">
-                <li class="active" data-target="mode-standard"><i class="fa-solid fa-calculator"></i> <span>Standar</span></li>
-                <li data-target="mode-scientific"><i class="fa-solid fa-flask"></i> <span>Ilmiah</span></li>
-                <li data-target="mode-financial"><i class="fa-solid fa-coins"></i> <span>Keuangan</span></li>
-                <li data-target="mode-health"><i class="fa-solid fa-heart-pulse"></i> <span>Kesehatan</span></li>
-                <li data-target="mode-conversion"><i class="fa-solid fa-arrows-rotate"></i> <span>Konversi</span></li>
-                <li data-target="mode-tax"><i class="fa-solid fa-file-invoice-dollar"></i> <span>Pajak</span></li>
-                <li data-target="mode-engineering"><i class="fa-solid fa-gear"></i> <span>Teknik</span></li>
-            </ul>
-        </nav>
 
-        <main class="main-content">
+            <!-- Mode Indicator -->
+            <div id="current-mode-display" class="hidden md:flex items-center gap-x-2 bg-white/10 text-white text-sm font-medium px-5 h-9 rounded-3xl">
+                <span id="mode-icon" class="text-xl"></span>
+                <span id="mode-name" class="capitalize"></span>
+            </div>
+
+            <!-- Right side controls -->
+            <div class="flex items-center gap-x-4">
+                <!-- History Button -->
+                <button onclick="toggleHistory()" 
+                        class="flex items-center gap-x-2 bg-white/10 hover:bg-white/20 transition-all px-4 h-9 rounded-3xl text-sm font-medium">
+                    <span class="text-xl">📜</span>
+                    <span>Riwayat</span>
+                </button>
+
+                <!-- Export Button -->
+                <button onclick="exportToPDF()" 
+                        class="flex items-center gap-x-2 bg-white/10 hover:bg-white/20 transition-all px-4 h-9 rounded-3xl text-sm font-medium">
+                    <span class="text-xl">📤</span>
+                    <span>Ekspor PDF</span>
+                </button>
+
+                <!-- Keyboard Toggle -->
+                <div class="flex items-center bg-white/10 rounded-3xl px-2 h-9 text-sm">
+                    <span class="px-3 text-white/70">⌨️ Keyboard</span>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="keyboard-toggle" checked onchange="toggleKeyboard()" class="sr-only peer">
+                        <div class="w-9 h-5 bg-white/30 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-white rounded-3xl peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-3xl after:h-4 after:w-4 after:transition-all peer-checked:bg-[#111111]"></div>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-screen-2xl mx-auto flex h-[calc(100vh-73px)] overflow-hidden">
+        
+        <!-- SIDEBAR NAVIGASI -->
+        <div class="w-72 bg-white border-r border-[#E5E5E5] flex flex-col py-6 px-4 overflow-y-auto shadow-inner">
+            <div class="text-xs font-medium text-[#555] px-4 mb-3 tracking-widest">MODE KALKULATOR</div>
             
-            <section id="mode-standard" class="calculator-panel active-panel">
-                <div class="display-container">
-                    <div class="history-log" id="history-log"></div>
-                    <div class="expression" id="expression"></div>
-                    <div class="result" id="result">0</div>
+            <div onclick="switchMode('standard')" id="nav-standard"
+                 class="nav-item flex items-center gap-x-3 px-4 py-4 hover:bg-[#F9F9F9] rounded-3xl mb-1 cursor-pointer active-mode">
+                <span class="text-2xl">🧮</span>
+                <div>
+                    <div class="font-semibold text-[#111111]">Standar</div>
+                    <div class="text-xs text-[#555]">Operasi dasar + memori</div>
                 </div>
-                
-                <div class="memory-keys">
-                    <button class="mem-btn" onclick="memoryAction('MC')">MC</button>
-                    <button class="mem-btn" onclick="memoryAction('MR')">MR</button>
-                    <button class="mem-btn" onclick="memoryAction('M+')">M+</button>
-                    <button class="mem-btn" onclick="memoryAction('M-')">M-</button>
-                    <button class="mem-btn" id="export-btn" title="Ekspor TXT"><i class="fa-solid fa-file-export"></i></button>
+            </div>
+            
+            <div onclick="switchMode('scientific')" id="nav-scientific"
+                 class="nav-item flex items-center gap-x-3 px-4 py-4 hover:bg-[#F9F9F9] rounded-3xl mb-1 cursor-pointer">
+                <span class="text-2xl">📐</span>
+                <div>
+                    <div class="font-semibold text-[#111111]">Ilmiah</div>
+                    <div class="text-xs text-[#555]">Fungsi lanjutan + grafik</div>
                 </div>
-
-                <div class="keypad">
-                    <button class="btn action-btn" onclick="clearAll()">AC</button>
-                    <button class="btn action-btn" onclick="deleteChar()">⌫</button>
-                    <button class="btn operator-btn" onclick="appendOperator('%')">%</button>
-                    <button class="btn operator-btn" onclick="appendOperator('/')">÷</button>
-
-                    <button class="btn num-btn" onclick="appendNumber('7')">7</button>
-                    <button class="btn num-btn" onclick="appendNumber('8')">8</button>
-                    <button class="btn num-btn" onclick="appendNumber('9')">9</button>
-                    <button class="btn operator-btn" onclick="appendOperator('*')">×</button>
-
-                    <button class="btn num-btn" onclick="appendNumber('4')">4</button>
-                    <button class="btn num-btn" onclick="appendNumber('5')">5</button>
-                    <button class="btn num-btn" onclick="appendNumber('6')">6</button>
-                    <button class="btn operator-btn" onclick="appendOperator('-')">−</button>
-
-                    <button class="btn num-btn" onclick="appendNumber('1')">1</button>
-                    <button class="btn num-btn" onclick="appendNumber('2')">2</button>
-                    <button class="btn num-btn" onclick="appendNumber('3')">3</button>
-                    <button class="btn operator-btn" onclick="appendOperator('+')">+</button>
-
-                    <button class="btn num-btn span-2" onclick="appendNumber('0')">0</button>
-                    <button class="btn num-btn" onclick="appendNumber('.')">.</button>
-                    <button class="btn equals-btn" onclick="calculateResult()">=</button>
+            </div>
+            
+            <div onclick="switchMode('financial')" id="nav-financial"
+                 class="nav-item flex items-center gap-x-3 px-4 py-4 hover:bg-[#F9F9F9] rounded-3xl mb-1 cursor-pointer">
+                <span class="text-2xl">💰</span>
+                <div>
+                    <div class="font-semibold text-[#111111]">Keuangan</div>
+                    <div class="text-xs text-[#555]">KPR, bunga, investasi</div>
                 </div>
-            </section>
-
-            <section id="mode-health" class="calculator-panel">
-                <div class="panel-header">
-                    <h2>Kalkulator BMI</h2>
-                    <p>Body Mass Index</p>
+            </div>
+            
+            <div onclick="switchMode('health')" id="nav-health"
+                 class="nav-item flex items-center gap-x-3 px-4 py-4 hover:bg-[#F9F9F9] rounded-3xl mb-1 cursor-pointer">
+                <span class="text-2xl">❤️</span>
+                <div>
+                    <div class="font-semibold text-[#111111]">Kesehatan</div>
+                    <div class="text-xs text-[#555]">BMI, kalori, berat ideal</div>
                 </div>
-                <div class="form-container">
-                    <div class="input-group">
-                        <label>Berat Badan (kg)</label>
-                        <input type="number" id="bmi-weight" placeholder="Contoh: 65">
-                    </div>
-                    <div class="input-group">
-                        <label>Tinggi Badan (cm)</label>
-                        <input type="number" id="bmi-height" placeholder="Contoh: 170">
-                    </div>
-                    <button class="btn-primary" onclick="calculateBMI()">Hitung BMI</button>
+            </div>
+            
+            <div onclick="switchMode('conversion')" id="nav-conversion"
+                 class="nav-item flex items-center gap-x-3 px-4 py-4 hover:bg-[#F9F9F9] rounded-3xl mb-1 cursor-pointer">
+                <span class="text-2xl">📏</span>
+                <div>
+                    <div class="font-semibold text-[#111111]">Konversi Satuan</div>
+                    <div class="text-xs text-[#555]">Panjang, berat, suhu, dll</div>
+                </div>
+            </div>
+            
+            <div onclick="switchMode('tax')" id="nav-tax"
+                 class="nav-item flex items-center gap-x-3 px-4 py-4 hover:bg-[#F9F9F9] rounded-3xl mb-1 cursor-pointer">
+                <span class="text-2xl">📋</span>
+                <div>
+                    <div class="font-semibold text-[#111111]">Pajak Indonesia</div>
+                    <div class="text-xs text-[#555]">PPh 21 &amp; PPN</div>
+                </div>
+            </div>
+            
+            <div onclick="switchMode('engineering')" id="nav-engineering"
+                 class="nav-item flex items-center gap-x-3 px-4 py-4 hover:bg-[#F9F9F9] rounded-3xl mb-1 cursor-pointer">
+                <span class="text-2xl">⚙️</span>
+                <div>
+                    <div class="font-semibold text-[#111111]">Teknik</div>
+                    <div class="text-xs text-[#555]">Listrik, geometri, kinematika</div>
+                </div>
+            </div>
+
+            <div class="mt-auto px-4 pt-8 border-t border-[#E5E5E5]">
+                <div class="text-xs text-[#555] flex items-center gap-x-2">
+                    <span class="flex-1 h-px bg-[#E5E5E5]"></span>
+                    Raven v1.0
+                    <span class="flex-1 h-px bg-[#E5E5E5]"></span>
+                </div>
+                <p class="text-[10px] text-[#999] mt-2">Built with precision • Fully responsive • Keyboard ready</p>
+            </div>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+
+            <!-- DISPLAY AREA (hanya untuk mode kalkulator) -->
+            <div id="calculator-display-container" class="hidden bg-[#111111] p-6 text-white">
+                <div class="max-w-xl mx-auto">
+                    <!-- Ekspresi kecil -->
+                    <div id="expression" class="text-right text-white/60 text-xl font-light h-8 font-mono overflow-hidden"></div>
                     
-                    <div class="result-card" id="bmi-result-card" style="display: none;">
-                        <h3 id="bmi-score">0.0</h3>
-                        <p id="bmi-category">Kategori</p>
+                    <!-- Layar utama -->
+                    <div id="main-display" 
+                         class="bg-[#0A0A0A] text-6xl font-medium text-right px-8 py-6 rounded-3xl shadow-2xl border border-white/10 min-h-[120px] flex items-end justify-end font-mono tracking-[-2px] overflow-hidden">
+                        0
+                    </div>
+                    
+                    <!-- Memory indicator -->
+                    <div id="memory-indicator" class="flex justify-end mt-2 text-xs text-white/50 font-medium">MEMORY: <span id="memory-value" class="ml-1 text-emerald-400">0</span></div>
+                </div>
+            </div>
+
+            <!-- MODE CONTENT CONTAINER -->
+            <div id="mode-content" class="flex-1 p-6 overflow-auto bg-[#F9F9F9]">
+                
+                <!-- STANDARD MODE -->
+                <div id="content-standard" class="mode-content">
+                    <div class="max-w-2xl mx-auto">
+                        <div class="grid grid-cols-4 gap-3 text-2xl font-medium" style="font-family: 'JetBrains Mono', monospace;">
+                            <!-- Row 1 -->
+                            <button onclick="handleStandardInput('AC')" class="key-btn bg-white border border-[#E5E5E5] hover:bg-[#F1F1F1] active:scale-95 transition-all h-16 rounded-2xl text-[#111111] font-semibold">AC</button>
+                            <button onclick="handleStandardInput('C')" class="key-btn bg-white border border-[#E5E5E5] hover:bg-[#F1F1F1] active:scale-95 transition-all h-16 rounded-2xl text-[#111111]">C</button>
+                            <button onclick="handleStandardInput('%')" class="key-btn bg-white border border-[#E5E5E5] hover:bg-[#F1F1F1] active:scale-95 transition-all h-16 rounded-2xl text-[#111111]">%</button>
+                            <button onclick="handleStandardInput('/')" class="key-btn bg-[#111111] text-white hover:bg-[#222] active:scale-95 transition-all h-16 rounded-2xl">÷</button>
+                            
+                            <!-- Row 2 -->
+                            <button onclick="handleStandardInput('7')" class="key-btn bg-white border border-[#E5E5E5] hover:bg-[#F1F1F1] active:scale-95 transition-all h-16 rounded-2xl">7</button>
+                            <button onclick="handleStandardInput('8')" class="key-btn bg-white border border-[#E5E5E5] hover:bg-[#F1F1F1] active:scale-95 transition-all h-16 rounded-2xl">8</button>
+                            <button onclick="handleStandardInput('9')" class="key-btn bg-white border border-[#E5E5E5] hover:bg-[#F1F1F1] active:scale-95 transition-all h-16 rounded-2xl">9</button>
+                            <button onclick="handleStandardInput('*')" class="key-btn bg-[#111111] text-white hover:bg-[#222] active:scale-95 transition-all h-16 rounded-2xl">×</button>
+                            
+                            <!-- Row 3 -->
+                            <button onclick="handleStandardInput('4')" class="key-btn bg-white border border-[#E5E5E5] hover:bg-[#F1F1F1] active:scale-95 transition-all h-16 rounded-2xl">4</button>
+                            <button onclick="handleStandardInput('5')" class="key-btn bg-white border border-[#E5E5E5] hover:bg-[#F1F1F1] active:scale-95 transition-all h-16 rounded-2xl">5</button>
+                            <button onclick="handleStandardInput('6')" class="key-btn bg-white border border-[#E5E5E5] hover:bg-[#F1F1F1] active:scale-95 transition-all h-16 rounded-2xl">6</button>
+                            <button onclick="handleStandardInput('-')" class="key-btn bg-[#111111] text-white hover:bg-[#222] active:scale-95 transition-all h-16 rounded-2xl">−</button>
+                            
+                            <!-- Row 4 -->
+                            <button onclick="handleStandardInput('1')" class="key-btn bg-white border border-[#E5E5E5] hover:bg-[#F1F1F1] active:scale-95 transition-all h-16 rounded-2xl">1</button>
+                            <button onclick="handleStandardInput('2')" class="key-btn bg-white border border-[#E5E5E5] hover:bg-[#F1F1F1] active:scale-95 transition-all h-16 rounded-2xl">2</button>
+                            <button onclick="handleStandardInput('3')" class="key-btn bg-white border border-[#E5E5E5] hover:bg-[#F1F1F1] active:scale-95 transition-all h-16 rounded-2xl">3</button>
+                            <button onclick="handleStandardInput('+')" class="key-btn bg-[#111111] text-white hover:bg-[#222] active:scale-95 transition-all h-16 rounded-2xl">+</button>
+                            
+                            <!-- Row 5 -->
+                            <button onclick="handleStandardInput('0')" class="key-btn bg-white border border-[#E5E5E5] hover:bg-[#F1F1F1] active:scale-95 transition-all h-16 rounded-2xl col-span-2">0</button>
+                            <button onclick="handleStandardInput('.')" class="key-btn bg-white border border-[#E5E5E5] hover:bg-[#F1F1F1] active:scale-95 transition-all h-16 rounded-2xl">.</button>
+                            <button onclick="calculateStandard()" class="key-btn bg-emerald-500 text-white hover:bg-emerald-600 active:scale-95 transition-all h-16 rounded-2xl text-3xl">=</button>
+                            
+                            <!-- Memory row -->
+                            <div class="col-span-4 mt-4 flex gap-2">
+                                <button onclick="memoryOperation('MC')" class="flex-1 h-12 text-sm font-medium bg-white border border-[#E5E5E5] hover:bg-[#F1F1F1] rounded-2xl">MC</button>
+                                <button onclick="memoryOperation('MR')" class="flex-1 h-12 text-sm font-medium bg-white border border-[#E5E5E5] hover:bg-[#F1F1F1] rounded-2xl">MR</button>
+                                <button onclick="memoryOperation('M+')" class="flex-1 h-12 text-sm font-medium bg-white border border-[#E5E5E5] hover:bg-[#F1F1F1] rounded-2xl">M+</button>
+                                <button onclick="memoryOperation('M-')" class="flex-1 h-12 text-sm font-medium bg-white border border-[#E5E5E5] hover:bg-[#F1F1F1] rounded-2xl">M−</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </section>
 
-            <section id="mode-scientific" class="calculator-panel"><div class="panel-header"><h2>Mode Ilmiah</h2><p>Dalam pengembangan...</p></div></section>
-            <section id="mode-financial" class="calculator-panel"><div class="panel-header"><h2>Mode Keuangan</h2><p>Dalam pengembangan...</p></div></section>
-            <section id="mode-conversion" class="calculator-panel"><div class="panel-header"><h2>Mode Konversi</h2><p>Dalam pengembangan...</p></div></section>
-            <section id="mode-tax" class="calculator-panel"><div class="panel-header"><h2>Mode Pajak</h2><p>Dalam pengembangan...</p></div></section>
-            <section id="mode-engineering" class="calculator-panel"><div class="panel-header"><h2>Mode Teknik</h2><p>Dalam pengembangan...</p></div></section>
+                <!-- SCIENTIFIC MODE -->
+                <div id="content-scientific" class="mode-content hidden">
+                    <div class="max-w-4xl mx-auto grid grid-cols-6 gap-3">
+                        <!-- Scientific buttons + display already shown above -->
+                        <div class="col-span-6 md:col-span-4">
+                            <div class="grid grid-cols-6 gap-3 text-xl" style="font-family: 'JetBrains Mono', monospace;">
+                                <button onclick="handleScientificInput('sin')" class="key-btn-scientific">sin</button>
+                                <button onclick="handleScientificInput('cos')" class="key-btn-scientific">cos</button>
+                                <button onclick="handleScientificInput('tan')" class="key-btn-scientific">tan</button>
+                                <button onclick="handleScientificInput('asin')" class="key-btn-scientific">arcsin</button>
+                                <button onclick="handleScientificInput('acos')" class="key-btn-scientific">arccos</button>
+                                <button onclick="handleScientificInput('atan')" class="key-btn-scientific">arctan</button>
+                                
+                                <button onclick="handleScientificInput('log')" class="key-btn-scientific">log₁₀</button>
+                                <button onclick="handleScientificInput('ln')" class="key-btn-scientific">ln</button>
+                                <button onclick="handleScientificInput('log2')" class="key-btn-scientific">log₂</button>
+                                <button onclick="handleScientificInput('sqrt')" class="key-btn-scientific">√</button>
+                                <button onclick="handleScientificInput('pow')" class="key-btn-scientific">xⁿ</button>
+                                <button onclick="handleScientificInput('pi')" class="key-btn-scientific">π</button>
+                                
+                                <button onclick="handleScientificInput('fact')" class="key-btn-scientific">n!</button>
+                                <button onclick="handleScientificInput('e')" class="key-btn-scientific">e</button>
+                                <button onclick="handleScientificInput('deg')" class="key-btn-scientific">deg</button>
+                                <button onclick="handleScientificInput('rad')" class="key-btn-scientific">rad</button>
+                                <button onclick="handleScientificInput('x2')" class="key-btn-scientific">x²</button>
+                                <button onclick="handleScientificInput('x3')" class="key-btn-scientific">x³</button>
+                            </div>
+                        </div>
+                        <div class="col-span-6 md:col-span-2 text-center text-sm text-[#555] flex flex-col justify-center">
+                            <div class="mb-6">Mode derajat aktif</div>
+                            <label class="inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="deg-rad-toggle" checked class="sr-only peer">
+                                <div onclick="toggleDegRad()" class="w-11 h-6 bg-[#E5E5E5] peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-black rounded-3xl peer peer-checked:bg-[#111111] after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-3xl after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full"></div>
+                            </label>
+                            <div class="text-xs mt-1">DEG / RAD</div>
+                        </div>
+                    </div>
+                </div>
 
-        </main>
+                <!-- FINANCIAL MODE -->
+                <div id="content-financial" class="mode-content hidden max-w-2xl mx-auto">
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div class="space-y-6">
+                            <h3 class="text-xl font-semibold text-[#111111]">Kalkulator KPR / Cicilan</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="text-xs text-[#555]">Pokok Pinjaman (Rp)</label>
+                                    <input id="loan-principal" type="text" value="500000000" 
+                                           class="w-full h-12 px-5 rounded-3xl border border-[#E5E5E5] focus:border-black text-xl font-medium">
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="text-xs text-[#555]">Bunga Tahunan (%)</label>
+                                        <input id="loan-rate" type="text" value="8.5" class="w-full h-12 px-5 rounded-3xl border border-[#E5E5E5] focus:border-black text-xl font-medium">
+                                    </div>
+                                    <div>
+                                        <label class="text-xs text-[#555]">Tenor (bulan)</label>
+                                        <input id="loan-tenor" type="text" value="120" class="w-full h-12 px-5 rounded-3xl border border-[#E5E5E5] focus:border-black text-xl font-medium">
+                                    </div>
+                                </div>
+                                <button onclick="calculateLoan()" 
+                                        class="w-full h-14 bg-[#111111] text-white rounded-3xl text-lg font-semibold hover:shadow-xl transition-all">Hitung Angsuran Bulanan</button>
+                            </div>
+                            <div id="loan-result" class="hidden mt-6 p-6 bg-white rounded-3xl border border-[#E5E5E5]"></div>
+                        </div>
+                        
+                        <div class="space-y-6">
+                            <h3 class="text-xl font-semibold text-[#111111]">Bunga Majemuk &amp; Investasi</h3>
+                            <div class="space-y-4">
+                                <div class="grid grid-cols-3 gap-3">
+                                    <div>
+                                        <label class="text-xs text-[#555]">PV</label>
+                                        <input id="pv" type="text" value="10000000" class="w-full h-12 px-5 rounded-3xl border border-[#E5E5E5] focus:border-black text-lg">
+                                    </div>
+                                    <div>
+                                        <label class="text-xs text-[#555]">Rate (%/thn)</label>
+                                        <input id="rate" type="text" value="7" class="w-full h-12 px-5 rounded-3xl border border-[#E5E5E5] focus:border-black text-lg">
+                                    </div>
+                                    <div>
+                                        <label class="text-xs text-[#555]">Tahun</label>
+                                        <input id="years" type="text" value="10" class="w-full h-12 px-5 rounded-3xl border border-[#E5E5E5] focus:border-black text-lg">
+                                    </div>
+                                </div>
+                                <button onclick="calculateCompound()" 
+                                        class="w-full h-14 bg-[#111111] text-white rounded-3xl text-lg font-semibold hover:shadow-xl transition-all">Hitung Future Value</button>
+                            </div>
+                            <div id="compound-result" class="hidden mt-6 p-6 bg-white rounded-3xl border border-[#E5E5E5]"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- HEALTH MODE -->
+                <div id="content-health" class="mode-content hidden max-w-xl mx-auto">
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div>
+                            <h3 class="text-xl font-semibold mb-6">BMI &amp; Berat Ideal</h3>
+                            <div class="space-y-6">
+                                <div class="flex gap-6">
+                                    <div class="flex-1">
+                                        <label class="block text-xs text-[#555] mb-2">Berat (kg)</label>
+                                        <input id="weight" type="text" value="70" class="w-full h-12 px-5 rounded-3xl border border-[#E5E5E5] focus:border-black text-2xl font-medium">
+                                    </div>
+                                    <div class="flex-1">
+                                        <label class="block text-xs text-[#555] mb-2">Tinggi (cm)</label>
+                                        <input id="height" type="text" value="170" class="w-full h-12 px-5 rounded-3xl border border-[#E5E5E5] focus:border-black text-2xl font-medium">
+                                    </div>
+                                </div>
+                                <button onclick="calculateBMI()" 
+                                        class="w-full h-14 bg-[#111111] text-white rounded-3xl text-lg font-semibold">Hitung BMI</button>
+                                <div id="bmi-result" class="hidden p-6 bg-white rounded-3xl border border-[#E5E5E5] text-center"></div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-xl font-semibold mb-6">Kebutuhan Kalori Harian (BMR)</h3>
+                            <div class="space-y-4">
+                                <select id="gender" class="w-full h-12 px-5 rounded-3xl border border-[#E5E5E5] text-lg">
+                                    <option value="male">Pria</option>
+                                    <option value="female">Wanita</option>
+                                </select>
+                                <div class="grid grid-cols-3 gap-3">
+                                    <div><input id="age" type="text" value="30" placeholder="Umur" class="w-full h-12 px-5 rounded-3xl border border-[#E5E5E5] text-lg"></div>
+                                    <div><input id="height-bmr" type="text" value="170" placeholder="Tinggi (cm)" class="w-full h-12 px-5 rounded-3xl border border-[#E5E5E5] text-lg"></div>
+                                    <div><input id="weight-bmr" type="text" value="70" placeholder="Berat (kg)" class="w-full h-12 px-5 rounded-3xl border border-[#E5E5E5] text-lg"></div>
+                                </div>
+                                <button onclick="calculateBMR()" 
+                                        class="w-full h-14 bg-[#111111] text-white rounded-3xl text-lg font-semibold">Hitung BMR</button>
+                                <div id="bmr-result" class="hidden p-6 bg-white rounded-3xl border border-[#E5E5E5]"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CONVERSION MODE -->
+                <div id="content-conversion" class="mode-content hidden max-w-2xl mx-auto">
+                    <div class="bg-white rounded-3xl p-8 border border-[#E5E5E5]">
+                        <div class="flex gap-6">
+                            <div class="flex-1">
+                                <select id="conv-from-unit" onchange="convertUnit()" class="w-full h-12 px-5 rounded-3xl border border-[#E5E5E5] text-lg"></select>
+                                <input id="conv-input" type="text" value="1" 
+                                       oninput="convertUnit()" class="mt-4 w-full h-14 px-6 text-4xl font-medium rounded-3xl border border-[#E5E5E5]">
+                            </div>
+                            <div class="flex items-center text-4xl text-[#111111]/30">→</div>
+                            <div class="flex-1">
+                                <select id="conv-to-unit" onchange="convertUnit()" class="w-full h-12 px-5 rounded-3xl border border-[#E5E5E5] text-lg"></select>
+                                <div id="conv-result" class="mt-4 h-14 px-6 flex items-center text-4xl font-medium bg-[#F9F9F9] rounded-3xl"></div>
+                            </div>
+                        </div>
+                        <div id="conv-category" class="flex gap-2 mt-8 text-xs"></div>
+                    </div>
+                </div>
+
+                <!-- TAX MODE (Indonesia) -->
+                <div id="content-tax" class="mode-content hidden max-w-2xl mx-auto">
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div class="bg-white rounded-3xl p-8 border border-[#E5E5E5]">
+                            <h3 class="font-semibold text-xl mb-6">PPh 21 (Gaji Bulanan)</h3>
+                            <input id="gaji-bruto" type="text" value="15000000" placeholder="Gaji Bruto Bulanan" 
+                                   class="w-full h-12 px-5 rounded-3xl border border-[#E5E5E5] text-2xl mb-4">
+                            <div class="flex gap-4 text-sm">
+                                <label class="flex items-center"><input type="radio" name="status" value="single" checked class="mr-2"> TK/0</label>
+                                <label class="flex items-center"><input type="radio" name="status" value="married" class="mr-2"> K/0</label>
+                                <label class="flex items-center"><input type="radio" name="status" value="married1" class="mr-2"> K/1</label>
+                            </div>
+                            <button onclick="calculatePPh21()" 
+                                    class="mt-6 w-full h-14 bg-[#111111] text-white rounded-3xl text-lg">Hitung Pajak Penghasilan</button>
+                            <div id="pph-result" class="hidden mt-8 p-6 rounded-3xl bg-[#F9F9F9]"></div>
+                        </div>
+                        
+                        <div class="bg-white rounded-3xl p-8 border border-[#E5E5E5]">
+                            <h3 class="font-semibold text-xl mb-6">PPN + Harga Setelah Pajak</h3>
+                            <div class="flex gap-4">
+                                <input id="harga-before" type="text" value="1000000" class="flex-1 h-12 px-5 rounded-3xl border border-[#E5E5E5]">
+                                <button onclick="calculatePPN()" class="px-8 bg-[#111111] text-white rounded-3xl">+11% PPN</button>
+                            </div>
+                            <div id="ppn-result" class="hidden mt-8 p-6 rounded-3xl bg-[#F9F9F9]"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ENGINEERING MODE -->
+                <div id="content-engineering" class="mode-content hidden max-w-2xl mx-auto">
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div class="space-y-6">
+                            <h3 class="font-semibold text-xl">Ohm’s Law &amp; Daya Listrik</h3>
+                            <div class="flex gap-4">
+                                <input id="ohm-v" placeholder="V (Volt)" class="flex-1 h-12 px-5 rounded-3xl border border-[#E5E5E5]">
+                                <input id="ohm-i" placeholder="I (Ampere)" class="flex-1 h-12 px-5 rounded-3xl border border-[#E5E5E5]">
+                                <input id="ohm-r" placeholder="R (Ohm)" class="flex-1 h-12 px-5 rounded-3xl border border-[#E5E5E5]">
+                            </div>
+                            <button onclick="calculateOhm()" class="w-full h-14 bg-[#111111] text-white rounded-3xl">Hitung</button>
+                            <div id="ohm-result" class="hidden p-6 bg-white rounded-3xl border"></div>
+                        </div>
+                        
+                        <div class="space-y-6">
+                            <h3 class="font-semibold text-xl">Geometri &amp; Kinematika</h3>
+                            <select id="geo-type" class="w-full h-12 px-5 rounded-3xl border border-[#E5E5E5]">
+                                <option value="circle">Lingkaran (luas &amp; keliling)</option>
+                                <option value="triangle">Segitiga</option>
+                                <option value="cube">Kubus (volume)</option>
+                                <option value="speed">Kecepatan, Jarak, Waktu</option>
+                            </select>
+                            <div id="geo-inputs" class="space-y-4"></div>
+                            <button onclick="calculateGeometry()" class="w-full h-14 bg-[#111111] text-white rounded-3xl">Hitung</button>
+                            <div id="geo-result" class="hidden p-6 bg-white rounded-3xl border"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- HISTORY PANEL (slide-in) -->
+        <div onclick="if(event.target.id==='history-overlay')toggleHistory()" 
+             id="history-overlay" class="hidden fixed inset-0 bg-black/60 z-[100] transition-opacity"></div>
+        
+        <div id="history-panel" 
+             class="hidden fixed top-0 bottom-0 right-0 w-96 bg-white shadow-2xl translate-x-full transition-transform duration-300 flex flex-col">
+            <div class="px-6 py-6 border-b flex justify-between items-center">
+                <h2 class="text-xl font-semibold">Riwayat Perhitungan</h2>
+                <button onclick="toggleHistory()" class="text-3xl leading-none text-[#999]">×</button>
+            </div>
+            <div id="history-list" class="flex-1 overflow-auto px-4 py-2 text-sm"></div>
+            <div class="p-4 border-t text-xs flex justify-between">
+                <button onclick="clearHistory()" class="text-red-600">Hapus Semua</button>
+                <button onclick="exportHistoryToText()" class="text-[#111111]">Ekspor sebagai .txt</button>
+            </div>
+        </div>
     </div>
 
     <script src="script.js"></script>
