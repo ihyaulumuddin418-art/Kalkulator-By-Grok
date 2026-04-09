@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raven Kalkulator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="app-container">
+        <nav class="sidebar">
+            <div class="brand">
+                <i class="fa-solid fa-gem"></i>
+                <h1>RAVEN</h1>
+            </div>
+            <ul class="nav-links">
+                <li class="active" data-target="mode-standard"><i class="fa-solid fa-calculator"></i> <span>Standar</span></li>
+                <li data-target="mode-scientific"><i class="fa-solid fa-flask"></i> <span>Ilmiah</span></li>
+                <li data-target="mode-financial"><i class="fa-solid fa-coins"></i> <span>Keuangan</span></li>
+                <li data-target="mode-health"><i class="fa-solid fa-heart-pulse"></i> <span>Kesehatan</span></li>
+                <li data-target="mode-conversion"><i class="fa-solid fa-arrows-rotate"></i> <span>Konversi</span></li>
+                <li data-target="mode-tax"><i class="fa-solid fa-file-invoice-dollar"></i> <span>Pajak</span></li>
+                <li data-target="mode-engineering"><i class="fa-solid fa-gear"></i> <span>Teknik</span></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            
+            <section id="mode-standard" class="calculator-panel active-panel">
+                <div class="display-container">
+                    <div class="history-log" id="history-log"></div>
+                    <div class="expression" id="expression"></div>
+                    <div class="result" id="result">0</div>
+                </div>
+                
+                <div class="memory-keys">
+                    <button class="mem-btn" onclick="memoryAction('MC')">MC</button>
+                    <button class="mem-btn" onclick="memoryAction('MR')">MR</button>
+                    <button class="mem-btn" onclick="memoryAction('M+')">M+</button>
+                    <button class="mem-btn" onclick="memoryAction('M-')">M-</button>
+                    <button class="mem-btn" id="export-btn" title="Ekspor TXT"><i class="fa-solid fa-file-export"></i></button>
+                </div>
+
+                <div class="keypad">
+                    <button class="btn action-btn" onclick="clearAll()">AC</button>
+                    <button class="btn action-btn" onclick="deleteChar()">⌫</button>
+                    <button class="btn operator-btn" onclick="appendOperator('%')">%</button>
+                    <button class="btn operator-btn" onclick="appendOperator('/')">÷</button>
+
+                    <button class="btn num-btn" onclick="appendNumber('7')">7</button>
+                    <button class="btn num-btn" onclick="appendNumber('8')">8</button>
+                    <button class="btn num-btn" onclick="appendNumber('9')">9</button>
+                    <button class="btn operator-btn" onclick="appendOperator('*')">×</button>
+
+                    <button class="btn num-btn" onclick="appendNumber('4')">4</button>
+                    <button class="btn num-btn" onclick="appendNumber('5')">5</button>
+                    <button class="btn num-btn" onclick="appendNumber('6')">6</button>
+                    <button class="btn operator-btn" onclick="appendOperator('-')">−</button>
+
+                    <button class="btn num-btn" onclick="appendNumber('1')">1</button>
+                    <button class="btn num-btn" onclick="appendNumber('2')">2</button>
+                    <button class="btn num-btn" onclick="appendNumber('3')">3</button>
+                    <button class="btn operator-btn" onclick="appendOperator('+')">+</button>
+
+                    <button class="btn num-btn span-2" onclick="appendNumber('0')">0</button>
+                    <button class="btn num-btn" onclick="appendNumber('.')">.</button>
+                    <button class="btn equals-btn" onclick="calculateResult()">=</button>
+                </div>
+            </section>
+
+            <section id="mode-health" class="calculator-panel">
+                <div class="panel-header">
+                    <h2>Kalkulator BMI</h2>
+                    <p>Body Mass Index</p>
+                </div>
+                <div class="form-container">
+                    <div class="input-group">
+                        <label>Berat Badan (kg)</label>
+                        <input type="number" id="bmi-weight" placeholder="Contoh: 65">
+                    </div>
+                    <div class="input-group">
+                        <label>Tinggi Badan (cm)</label>
+                        <input type="number" id="bmi-height" placeholder="Contoh: 170">
+                    </div>
+                    <button class="btn-primary" onclick="calculateBMI()">Hitung BMI</button>
+                    
+                    <div class="result-card" id="bmi-result-card" style="display: none;">
+                        <h3 id="bmi-score">0.0</h3>
+                        <p id="bmi-category">Kategori</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="mode-scientific" class="calculator-panel"><div class="panel-header"><h2>Mode Ilmiah</h2><p>Dalam pengembangan...</p></div></section>
+            <section id="mode-financial" class="calculator-panel"><div class="panel-header"><h2>Mode Keuangan</h2><p>Dalam pengembangan...</p></div></section>
+            <section id="mode-conversion" class="calculator-panel"><div class="panel-header"><h2>Mode Konversi</h2><p>Dalam pengembangan...</p></div></section>
+            <section id="mode-tax" class="calculator-panel"><div class="panel-header"><h2>Mode Pajak</h2><p>Dalam pengembangan...</p></div></section>
+            <section id="mode-engineering" class="calculator-panel"><div class="panel-header"><h2>Mode Teknik</h2><p>Dalam pengembangan...</p></div></section>
+
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
