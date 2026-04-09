@@ -1,253 +1,80 @@
-:root {
-    --bg-main: #FFFFFF;
-    --bg-secondary: #F9F9F9;
-    --text-primary: #111111;
-    --text-secondary: #555555;
-    --border-color: #E5E5E5;
-    --accent-black: #0A0A0A;
-    --font-heading: 'Syne', sans-serif;
-    --font-mono: 'JetBrains Mono', monospace;
-    --transition-speed: 0.3s;
-}
+/* styles.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
 }
 
 body {
-    font-family: var(--font-heading);
-    background-color: var(--bg-secondary);
-    color: var(--text-primary);
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
+    font-family: 'Syne', system-ui, sans-serif;
 }
 
-.app-container {
-    display: flex;
-    width: 100%;
-    max-width: 1000px;
-    height: 90vh;
-    background: var(--bg-main);
-    border-radius: 20px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.05);
-    border: 1px solid var(--border-color);
-    overflow: hidden;
-    animation: fadeIn 0.6s ease-out;
+.font-mono {
+    font-family: 'JetBrains Mono', monospace;
 }
 
-/* Sidebar */
-.sidebar {
-    width: 250px;
-    background: var(--bg-secondary);
-    border-right: 1px solid var(--border-color);
-    display: flex;
-    flex-direction: column;
-    padding: 2rem 0;
+#current-mode-display {
+    animation: fadeIn 0.4s ease forwards;
 }
 
-.brand {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 0 2rem 2rem;
-    font-weight: 800;
-    font-size: 1.2rem;
-    letter-spacing: 1px;
+.key-btn {
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 }
 
-.nav-links {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
+.key-btn-scientific {
+    @apply bg-white border border-[#E5E5E5] hover:bg-[#F9F9F9] active:scale-95 h-14 rounded-2xl text-[#111111] font-medium text-base flex items-center justify-center;
 }
 
-.nav-links li {
-    padding: 1rem 2rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    color: var(--text-secondary);
-    transition: all var(--transition-speed);
-    font-weight: 700;
+.mode-content {
+    animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
-.nav-links li:hover {
-    color: var(--text-primary);
-    background: rgba(0,0,0,0.03);
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
-.nav-links li.active {
-    color: var(--bg-main);
-    background: var(--accent-black);
-    border-right: 4px solid var(--text-secondary);
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-/* Main Content Area */
-.main-content {
-    flex: 1;
-    position: relative;
-    padding: 2rem;
-    overflow-y: auto;
+/* Ripple effect for buttons */
+.key-btn::after,
+.key-btn-scientific::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255,255,255,0.3);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
 }
 
-.calculator-panel {
-    display: none;
-    flex-direction: column;
-    height: 100%;
-    animation: slideFadeIn 0.4s ease-out;
+.key-btn:active::after,
+.key-btn-scientific:active::after {
+    animation: ripple 0.6s ease-out;
 }
 
-.calculator-panel.active-panel {
-    display: flex;
+@keyframes ripple {
+    to {
+        width: 200px;
+        height: 200px;
+        opacity: 0;
+    }
 }
 
-/* Display UI */
-.display-container {
-    background: var(--bg-secondary);
-    padding: 2rem;
-    border-radius: 15px;
-    text-align: right;
-    margin-bottom: 1rem;
-    border: 1px solid var(--border-color);
-}
-
-.history-log {
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
-    color: var(--text-secondary);
-    min-height: 1.2rem;
-    margin-bottom: 5px;
-}
-
-.expression {
-    font-family: var(--font-mono);
-    font-size: 1.2rem;
-    color: var(--text-secondary);
-    min-height: 1.8rem;
-}
-
-.result {
-    font-family: var(--font-mono);
-    font-size: 3.5rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    letter-spacing: -2px;
-    overflow-x: auto;
-    transition: transform 0.2s;
-}
-
-/* Keypad Grid */
-.memory-keys {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 1rem;
-}
-
-.mem-btn {
-    flex: 1;
-    padding: 8px;
-    background: transparent;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    cursor: pointer;
-    font-family: var(--font-mono);
-    font-size: 0.9rem;
-    transition: all 0.2s;
-}
-
-.mem-btn:hover { background: var(--border-color); }
-
-.keypad {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 15px;
-    flex: 1;
-}
-
-.btn {
-    border: 1px solid var(--border-color);
-    background: var(--bg-main);
-    font-family: var(--font-mono);
-    font-size: 1.5rem;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: transform 0.1s, box-shadow 0.2s, background 0.2s;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-    background: var(--bg-secondary);
-}
-
-.btn:active {
-    transform: scale(0.95);
-}
-
-.span-2 {
-    grid-column: span 2;
-}
-
-.action-btn { color: #d9534f; font-weight: 700; }
-.operator-btn { color: var(--accent-black); font-weight: 700; background: var(--bg-secondary); }
-.equals-btn {
-    background: var(--accent-black);
-    color: var(--bg-main);
-}
-.equals-btn:hover { background: #333; color: white; }
-
-/* Forms (For Health/Tax/etc) */
-.panel-header { margin-bottom: 2rem; }
-.form-container { max-width: 400px; }
-.input-group { margin-bottom: 1.5rem; }
-.input-group label { display: block; margin-bottom: 0.5rem; font-weight: 700; }
-.input-group input {
-    width: 100%;
-    padding: 1rem;
-    border: 1px solid var(--border-color);
-    border-radius: 10px;
-    font-family: var(--font-mono);
-    font-size: 1.1rem;
-    outline: none;
-    transition: border-color 0.3s;
-}
-.input-group input:focus { border-color: var(--accent-black); }
-.btn-primary {
-    width: 100%;
-    padding: 1rem;
-    background: var(--accent-black);
-    color: var(--bg-main);
-    border: none;
-    border-radius: 10px;
-    font-size: 1.1rem;
-    font-weight: 700;
-    cursor: pointer;
-}
-
-/* Animations */
-@keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
-@keyframes slideFadeIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
-.animate-flip { animation: flipIn 0.3s ease-out; }
-@keyframes flipIn { 0% { transform: rotateX(-90deg); opacity: 0; } 100% { transform: rotateX(0); opacity: 1; } }
-
-/* Responsive */
-@media (max-width: 768px) {
-    .app-container { flex-direction: column; height: 100vh; border-radius: 0; border: none; }
-    .sidebar { width: 100%; flex-direction: row; overflow-x: auto; padding: 1rem; border-right: none; border-bottom: 1px solid var(--border-color); }
-    .brand { padding: 0 1rem 0 0; }
-    .nav-links { flex-direction: row; gap: 10px; }
-    .nav-links li { padding: 0.5rem 1rem; border-radius: 20px; white-space: nowrap; }
-    .nav-links li.active { border-right: none; }
-    .nav-links li span { display: none; } /* Hanya tampilkan ikon di mobile */
-    .keypad { gap: 10px; }
-    .btn { font-size: 1.2rem; }
-}
+/* Tailwind custom config via script */
